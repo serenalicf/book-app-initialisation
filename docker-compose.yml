@@ -1,0 +1,50 @@
+version: '3.7'
+
+services:
+  book-frontend:
+    image: slcf2023/book-frontend:1.0
+    ports:
+      - "3000:80"
+    restart: always
+    depends_on: # Start the depends_on first
+      - book-backend
+    networks:
+      - book-application-network
+
+  book-backend:
+    image: slcf2023/book-backend:1.0
+    ports:
+      - "8083:8080"
+    restart: always
+    depends_on: # Start the depends_on first
+      - mysql 
+    environment:
+      RDS_HOSTNAME: mysql
+      RDS_PORT: 3306
+      RDS_DB_NAME: book-database
+      RDS_USERNAME: user
+      RDS_PASSWORD: P@ssw0rd!
+    networks:
+      - book-application-network
+
+  mysql:
+    image: mysql:8-oracle
+    ports:
+      - "3306:3306"
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: P@ssw0rd!
+      MYSQL_USER: user
+      MYSQL_PASSWORD: P@ssw0rd!
+      MYSQL_DATABASE: book-database
+    volumes:
+      - mysql-database-data-volume:/var/lib/mysql
+    networks:
+      - book-application-network 
+  
+# Volumes
+volumes:
+  mysql-database-data-volume:
+
+networks:
+  book-application-network:
